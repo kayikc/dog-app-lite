@@ -2,14 +2,76 @@ import requests
 import pandas as pd
 import streamlit as st
 
+# Define the colors from the image (min/blue to max/red)
+TITLE_COLORS = ["#4285F4", "#42A5F5", "#34A853", "#FBBC05", "#F29900", "#EA4335"]
+
+# --------------------
+# Custom Styling for Google Look
+# --------------------
+custom_css = f"""
+<style>
+/* Center the main content column and limit its width */
+.css-18e3th9 {{
+    padding-top: 10rem; /* Pushes content further down the page */
+    max-width: 600px; /* Limits the max width of the center content */
+}}
+
+/* Hide default Streamlit header/footer/menu */
+#MainMenu {{visibility: hidden;}}
+footer {{visibility: hidden;}}
+header {{visibility: hidden;}}
+
+/* Style for the 'DogDog Go' Title */
+.dogdog-go-title {{
+    font-size: 5rem; /* Larger font size */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 2rem;
+    line-height: 1.2;
+}}
+
+/* Style for the colored letters */
+{' '.join([f'.color-{i+1} {{ color: {color}; }}' for i, color in enumerate(TITLE_COLORS)])}
+
+/* Style the search box to be centered and rounded */
+.stTextInput > div > div > input {{
+    border-radius: 24px;
+    height: 48px;
+    padding: 0 20px;
+    font-size: 16px;
+    box-shadow: 0 1px 6px rgba(32,33,36,.28);
+    border-color: transparent !important; /* Remove default border */
+    transition: box-shadow 300ms ease-in-out;
+}}
+
+.stTextInput > div > div > input:focus {{
+    box-shadow: 0 1px 8px rgba(32,33,36,.38); /* Subtle lift on focus */
+}}
+</style>
+"""
+
+# Inject the custom CSS
+st.markdown(custom_css, unsafe_allow_html=True)
+
+
 # --------------------
 # Page config
 # --------------------
-st.set_page_config(page_title="Dog Knowledge Base", page_icon="🐾", layout="centered")
+st.set_page_config(page_title="DogDog Go", page_icon="🐾", layout="centered")
 
-st.title("🐶 Dog Knowledge Base")
-st.caption("Search dog breeds, read quick facts, and view reference images.")
+# --------------------
+# Google Landing Page UI: Title
+# --------------------
 
+# DogDog Go Title with Colored Letters
+title_html = """
+<div class="dogdog-go-title">
+    <span class="color-1">D</span><span class="color-2">o</span><span class="color-3">g</span>
+    <span class="color-4">D</span><span class="color-5">o</span><span class="color-6">g</span>
+    <span class="color-1">G</span><span class="color-2">o</span>
+</div>
+"""
+st.markdown(title_html, unsafe_allow_html=True)
 
 # --------------------
 # Helpers
@@ -105,9 +167,10 @@ with st.spinner("Fetching breed data..."):
 # --------------------
 # UI: search box
 # --------------------
-st.subheader("Search by breed")
+# The search box is the main element below the title, styled by the CSS.
 breed_query = st.text_input(
-    "Type a breed name (e.g. husky, labrador, bulldog):", placeholder="husky"
+    "",  # No label
+    placeholder="Search for a dog breed, try husky...",
 ).strip()
 
 results_df = find_matches(breeds_df, breed_query)
@@ -117,6 +180,7 @@ results_df = find_matches(breeds_df, breed_query)
 # Main result display
 # --------------------
 if breed_query:
+    st.markdown("---")  # Add a separator for results
     if results_df.empty:
         st.warning("No match found.")
     else:
@@ -172,12 +236,11 @@ if breed_query:
 # --------------------
 # Feedback / suggestions
 # --------------------
-st.divider()
-with st.expander("💬 Feedback / Suggestions"):
+with st.expander(" Feedback / Suggestions"):
     st.write(
         "Help improve this dog knowledge base. "
-        "Feedback here is stored only in memory for this session, "
-        "not uploaded anywhere."
+        "We don't collect any cookies or information from you. "
+        "Go crazy"
     )
 
     if "feedback_log" not in st.session_state:
